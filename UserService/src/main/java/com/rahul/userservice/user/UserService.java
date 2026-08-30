@@ -1,11 +1,12 @@
 package com.rahul.userservice.user;
 
-import com.rahul.userservice.user.dto.LoginRequest;
-import com.rahul.userservice.user.dto.RegisterRequest;
-import com.rahul.userservice.user.dto.UserResponse;
+import com.rahul.userservice.user.dto.*;
 
 public interface UserService {
 
     UserResponse register(RegisterRequest request);
-    UserResponse login(LoginRequest request);
+    AuthResponse login(LoginRequest request);
+    UserResponse getCurrentUser(String email);
+
+    UserResponse updateProfile(String email, UpdateProfileRequest request);
 }
