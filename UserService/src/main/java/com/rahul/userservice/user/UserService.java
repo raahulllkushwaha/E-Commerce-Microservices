@@ -9,4 +9,6 @@ public interface UserService {
     UserResponse getCurrentUser(String email);
 
     UserResponse updateProfile(String email, UpdateProfileRequest request);
+
+    UserResponse changePassword(String email, ChangePasswordRequest request);
 }

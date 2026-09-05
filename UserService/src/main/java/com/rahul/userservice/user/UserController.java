@@ -70,4 +70,20 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<ApiResponse<UserResponse>> changePassword(@Valid @RequestBody ChangePasswordRequest request){
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        UserResponse userResponse = userService.changePassword(email, request);
+
+        ApiResponse<UserResponse> response = ApiResponse.<UserResponse>builder()
+                .success(true)
+                .message("Password Changed")
+                .data(userResponse)
+                .build();
+
+        return ResponseEntity.ok(response);
+
+    }
 }

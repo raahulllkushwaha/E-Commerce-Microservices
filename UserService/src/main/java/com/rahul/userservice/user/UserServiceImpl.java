@@ -80,6 +80,8 @@ public class UserServiceImpl implements UserService{
                 .build();
     }
 
+
+    @Override
     public UserResponse updateProfile(String email, UpdateProfileRequest request){
 
         User user = userRepository.findByEmail(email)
@@ -99,4 +101,29 @@ public class UserServiceImpl implements UserService{
                 .createdAt(updatedUser.getCreatedAt())
                 .build();
     }
+
+    @Override
+    public UserResponse changePassword(String email, ChangePasswordRequest request){
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Enter correct email"));
+
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new InvalidCredentialsException("Old password is incorrect!");
+        }
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+
+        User updatedUser = userRepository.save(user);
+
+        return UserResponse.builder()
+                .id(updatedUser.getId())
+                .email(updatedUser.getEmail())
+                .firstName(updatedUser.getFirstName())
+                .lastName(updatedUser.getLastName())
+                .role(updatedUser.getRole())
+                .createdAt(updatedUser.getCreatedAt())
+                .build();
+    }
+
 }
