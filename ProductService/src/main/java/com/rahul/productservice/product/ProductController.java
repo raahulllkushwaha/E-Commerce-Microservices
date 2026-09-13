@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,7 +22,9 @@ public class ProductController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@Valid @RequestBody ProductRequest request) {
-        ProductResponse productResponse = productService.createProduct(request);
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        ProductResponse productResponse = productService.createProduct(email, request);
 
         ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
                 .success(true)
@@ -74,7 +77,13 @@ public class ProductController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductResponse>> updateProduct(@PathVariable UUID id, @Valid @RequestBody ProductRequest request) {
-        ProductResponse productResponse = productService.updateProduct(id, request);
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String role = SecurityContextHolder.getContext().getAuthentication()
+                .getAuthorities().iterator().next().getAuthority()
+                .replace("ROLE_", "");
+
+        ProductResponse productResponse = productService.updateProduct(id, email, role, request);
 
         ApiResponse<ProductResponse> response = ApiResponse.<ProductResponse>builder()
                 .success(true)
@@ -87,7 +96,13 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable UUID id) {
-        productService.deleteProduct(id);
+
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        String role = SecurityContextHolder.getContext().getAuthentication()
+                .getAuthorities().iterator().next().getAuthority()
+                .replace("ROLE_", "");
+
+        productService.deleteProduct(id, email, role);
 
         ApiResponse<Void> response = ApiResponse.<Void>builder()
                 .success(true)

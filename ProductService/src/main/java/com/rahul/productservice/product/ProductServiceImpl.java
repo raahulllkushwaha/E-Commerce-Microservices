@@ -58,7 +58,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductResponse> getAllProducts(){
-       List<Product> products = productRepository.findAll();
+       List<Product> products = productRepository.findByIsActiveTrue();
 
        return products.stream()
                .map(product -> ProductResponse.builder()
@@ -158,6 +158,20 @@ public class ProductServiceImpl implements ProductService {
 
         product.setActive(false);
         productRepository.delete(product);
+    }
+
+    private ProductResponse mapToResponse(Product product) {
+        return ProductResponse.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .description(product.getDescription())
+                .sku(product.getSku())
+                .price(product.getPrice())
+                .stockQuantity(product.getStockQuantity())
+                .categoryName(product.getCategory().getName())
+                .isActive(product.isActive())
+                .createdAt(product.getCreatedAt())
+                .build();
     }
 }
 
