@@ -3,6 +3,7 @@ package com.rahul.productservice.product;
 import com.rahul.productservice.category.Category;
 import com.rahul.productservice.category.CategoryRepository;
 import com.rahul.productservice.common.exception.DuplicateResourceException;
+import com.rahul.productservice.common.exception.InvalidCredentialsException;
 import com.rahul.productservice.common.exception.ResourceNotFoundException;
 import com.rahul.productservice.product.dto.ProductRequest;
 import com.rahul.productservice.product.dto.ProductResponse;
@@ -21,7 +22,7 @@ public class ProductServiceImpl implements ProductService {
     private final CategoryRepository categoryRepository;
 
     @Override
-    public ProductResponse createProduct(ProductRequest request){
+    public ProductResponse createProduct(String sellerEmail, ProductRequest request){
 
         if(productRepository.existsBySku(request.getSku())){
             throw new DuplicateResourceException("Product already exist");
@@ -37,6 +38,7 @@ public class ProductServiceImpl implements ProductService {
                 .price(request.getPrice())
                 .stockQuantity(request.getStockQuantity())
                 .category(category)
+                .sellerEmail(sellerEmail)
                 .build();
 
         Product savedProduct = productRepository.save(product);
@@ -112,9 +114,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ProductResponse updateProduct(UUID id, ProductRequest request){
+    public ProductResponse updateProduct(UUID id, String sellerEmail, String role, ProductRequest request){
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        if (!role.equals("ADMIN") && !product.getSellerEmail().equals(sellerEmail)) {
+            throw new InvalidCredentialsException("You are not allowed to update this product");
+        }
 
         Category category = categoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
@@ -142,9 +148,13 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public void deleteProduct(UUID id){
+    public void deleteProduct(UUID id, String sellerEmail, String role){
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        if (!role.equals("ADMIN") && !product.getSellerEmail().equals(sellerEmail)) {
+            throw new InvalidCredentialsException("You are not allowed to delete this product");
+        }
 
         product.setActive(false);
         productRepository.delete(product);

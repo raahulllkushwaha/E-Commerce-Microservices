@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.UUID;
 
 public interface ProductService {
-    ProductResponse createProduct(ProductRequest request);
+    ProductResponse createProduct(String sellerEmail, ProductRequest request);
     List<ProductResponse> getAllProducts();
     ProductResponse getProductById(UUID id);
     List<ProductResponse> getProductsByCategory(UUID categoryId);
-    ProductResponse updateProduct(UUID id, ProductRequest request);
-    void deleteProduct(UUID id);
+    ProductResponse updateProduct(UUID id, String sellerEmail, String role, ProductRequest request);
+    void deleteProduct(UUID id, String sellerEmail, String role);
 }

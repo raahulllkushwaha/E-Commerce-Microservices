@@ -1,6 +1,7 @@
 package com.rahul.productservice.common;
 
 import com.rahul.productservice.common.exception.DuplicateResourceException;
+import com.rahul.productservice.common.exception.InvalidCredentialsException;
 import com.rahul.productservice.common.exception.ResourceNotFoundException;
 import com.rahul.productservice.common.exception.InsufficientStockException;
 import org.springframework.http.HttpStatus;
@@ -52,6 +53,15 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<?> handleInvalid(InvalidCredentialsException ex){
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(ApiResponse.builder()
+                        .success(false)
+                        .message(ex.getMessage())
+                        .data(null)
+                        .build());
+    }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleGeneric(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -61,4 +71,6 @@ public class GlobalExceptionHandler {
                         .data(null)
                         .build());
     }
+
+
 }
