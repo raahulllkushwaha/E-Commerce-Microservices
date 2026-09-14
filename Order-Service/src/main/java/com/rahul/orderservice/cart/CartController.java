@@ -1,0 +1,95 @@
+package com.rahul.orderservice.cart;
+
+import com.rahul.orderservice.cart.dto.AddToCartRequest;
+import com.rahul.orderservice.cart.dto.CartResponse;
+import com.rahul.orderservice.common.ApiResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/api/carts")
+@RequiredArgsConstructor
+public class CartController {
+
+    private final CartService cartService;
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<CartResponse>> addToCart(@PathVariable String userEmail,
+                                                               @Valid @RequestBody AddToCartRequest request){
+        CartResponse cartResponse = cartService.addToCart(userEmail, request);
+
+        ApiResponse<CartResponse> response = ApiResponse.<CartResponse>builder()
+                .success(true)
+                .message("Item added to cart successfully")
+                .data(cartResponse)
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/{userEmail}")
+    public ResponseEntity<ApiResponse<CartResponse>> getCart(@PathVariable String userEmail) {
+        CartResponse cartData = cartService.getCart(userEmail);
+
+        ApiResponse<CartResponse> response = ApiResponse.<CartResponse>builder()
+                .success(true)
+                .message("Cart fetched successfully")
+                .data(cartData)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{userEmail}/items/{itemId}")
+    public ResponseEntity<ApiResponse<CartResponse>> removeCart(
+            @PathVariable String userEmail,
+            @PathVariable UUID itemId) {
+
+        CartResponse cartData = cartService.removeCart(userEmail, itemId); //[cite: 5]
+
+        ApiResponse<CartResponse> response = ApiResponse.<CartResponse>builder()
+                .success(true)
+                .message("Item removed from cart successfully")
+                .data(cartData)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{userEmail}/items/{itemId}")
+    public ResponseEntity<ApiResponse<CartResponse>> updateItemQuantity(
+            @PathVariable String userEmail,
+            @PathVariable UUID itemId,
+            @RequestParam Integer quantity) {
+
+        CartResponse cartData = cartService.updateItemQuantity(userEmail, itemId, quantity); //[cite: 5]
+
+        ApiResponse<CartResponse> response = ApiResponse.<CartResponse>builder()
+                .success(true)
+                .message("Cart item quantity updated successfully")
+                .data(cartData)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{userEmail}")
+    public ResponseEntity<ApiResponse<Void>> clearCart(@PathVariable String userEmail) {
+        cartService.clearCart(userEmail);
+
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .success(true)
+                .message("Cart cleared successfully")
+                .data(null)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+
+}
