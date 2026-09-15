@@ -3,6 +3,7 @@ package com.rahul.orderservice.cart;
 import com.rahul.orderservice.cart.dto.AddToCartRequest;
 import com.rahul.orderservice.cart.dto.CartItemResponse;
 import com.rahul.orderservice.cart.dto.CartResponse;
+import com.rahul.orderservice.client.ProductApiResponse;
 import com.rahul.orderservice.client.ProductResponse;
 import com.rahul.orderservice.client.ProductServiceClient;
 import com.rahul.orderservice.common.ApiResponse;
@@ -30,7 +31,7 @@ public class CartServiceImpl implements CartService{
         Cart cart = cartRepository.findByUserEmail(userEmail)
                 .orElseGet(() -> Cart.builder().userEmail(userEmail).build());
 
-        ApiResponse<ProductResponse> productApiResponse = productServiceClient.getProductById(request.getProductId());
+        ProductApiResponse productApiResponse = productServiceClient.getProductById(request.getProductId());
         ProductResponse product = productApiResponse.getData();
 
         if(!product.isActive()){
