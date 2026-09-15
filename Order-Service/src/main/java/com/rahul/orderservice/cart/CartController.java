@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -19,8 +20,8 @@ public class CartController {
     private final CartService cartService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<CartResponse>> addToCart(@PathVariable String userEmail,
-                                                               @Valid @RequestBody AddToCartRequest request){
+    public ResponseEntity<ApiResponse<CartResponse>> addToCart(@Valid @RequestBody AddToCartRequest request){
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         CartResponse cartResponse = cartService.addToCart(userEmail, request);
 
         ApiResponse<CartResponse> response = ApiResponse.<CartResponse>builder()
@@ -33,7 +34,8 @@ public class CartController {
     }
 
     @GetMapping("/{userEmail}")
-    public ResponseEntity<ApiResponse<CartResponse>> getCart(@PathVariable String userEmail) {
+    public ResponseEntity<ApiResponse<CartResponse>> getCart() {
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         CartResponse cartData = cartService.getCart(userEmail);
 
         ApiResponse<CartResponse> response = ApiResponse.<CartResponse>builder()
@@ -46,9 +48,9 @@ public class CartController {
     }
 
     @DeleteMapping("/{userEmail}/items/{itemId}")
-    public ResponseEntity<ApiResponse<CartResponse>> removeCart(
-            @PathVariable String userEmail,
-            @PathVariable UUID itemId) {
+    public ResponseEntity<ApiResponse<CartResponse>> removeCart(@PathVariable UUID itemId) {
+
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
 
         CartResponse cartData = cartService.removeCart(userEmail, itemId); //[cite: 5]
 
@@ -63,10 +65,10 @@ public class CartController {
 
     @PutMapping("/{userEmail}/items/{itemId}")
     public ResponseEntity<ApiResponse<CartResponse>> updateItemQuantity(
-            @PathVariable String userEmail,
             @PathVariable UUID itemId,
             @RequestParam Integer quantity) {
 
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         CartResponse cartData = cartService.updateItemQuantity(userEmail, itemId, quantity); //[cite: 5]
 
         ApiResponse<CartResponse> response = ApiResponse.<CartResponse>builder()
@@ -79,7 +81,9 @@ public class CartController {
     }
 
     @DeleteMapping("/{userEmail}")
-    public ResponseEntity<ApiResponse<Void>> clearCart(@PathVariable String userEmail) {
+    public ResponseEntity<ApiResponse<Void>> clearCart() {
+
+        String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         cartService.clearCart(userEmail);
 
         ApiResponse<Void> response = ApiResponse.<Void>builder()
