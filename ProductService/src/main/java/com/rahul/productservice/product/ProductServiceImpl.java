@@ -3,6 +3,7 @@ package com.rahul.productservice.product;
 import com.rahul.productservice.category.Category;
 import com.rahul.productservice.category.CategoryRepository;
 import com.rahul.productservice.common.exception.DuplicateResourceException;
+import com.rahul.productservice.common.exception.InsufficientStockException;
 import com.rahul.productservice.common.exception.InvalidCredentialsException;
 import com.rahul.productservice.common.exception.ResourceNotFoundException;
 import com.rahul.productservice.product.dto.ProductRequest;
@@ -158,6 +159,18 @@ public class ProductServiceImpl implements ProductService {
 
         product.setActive(false);
         productRepository.delete(product);
+    }
+    @Override
+    public void reduceStock(UUID id, Integer quantity) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        if (product.getStockQuantity() < quantity) {
+            throw new InsufficientStockException("Not enough stock");
+        }
+
+        product.setStockQuantity(product.getStockQuantity() - quantity);
+        productRepository.save(product);
     }
 
     private ProductResponse mapToResponse(Product product) {

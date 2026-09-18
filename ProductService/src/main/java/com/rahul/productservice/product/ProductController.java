@@ -112,4 +112,19 @@ public class ProductController {
 
         return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/{id}/reduce-stock")
+    public ResponseEntity<ApiResponse<Void>> reduceStock(
+            @PathVariable UUID id, @RequestParam Integer quantity) {
+
+        productService.reduceStock(id, quantity);
+
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .success(true)
+                .message("Stock reduced successfully")
+                .data(null)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
 }

@@ -8,8 +8,7 @@ import java.util.UUID;
 
 public interface OrderService {
     OrderResponse placeOrder(String userEmail, PlaceOrderRequest request);
-    List<OrderResponse> getMyOrder(String userEmail);
+    List<OrderResponse> getMyOrders(String userEmail);
     OrderResponse getOrderById(UUID id);
     OrderResponse cancelOrder(String userEmail, UUID orderId);
-
 }
