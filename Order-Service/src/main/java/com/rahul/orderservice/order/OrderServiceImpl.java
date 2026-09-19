@@ -10,7 +10,9 @@ import com.rahul.orderservice.common.exception.ResourceNotFoundException;
 import com.rahul.orderservice.order.dto.OrderItemResponse;
 import com.rahul.orderservice.order.dto.OrderResponse;
 import com.rahul.orderservice.order.dto.PlaceOrderRequest;
+import com.rahul.orderservice.order.event.OrderPlacedEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,6 +29,7 @@ public class OrderServiceImpl implements OrderService{
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
     private final ProductServiceClient productServiceClient;
+    private final KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
 
     @Override
     public OrderResponse placeOrder(String userEmail, PlaceOrderRequest request) {
@@ -88,6 +91,12 @@ public class OrderServiceImpl implements OrderService{
         cart.getItems().clear();
         cartRepository.save(cart);
 
+        kafkaTemplate.send("order-placed-topic",
+                OrderPlacedEvent.builder()
+                        .orderId(saveOrder.getId())
+                        .userEmail(userEmail)
+                        .totalAmount(totalAmount)
+                        .build());
         return mapToOrderResponse(saveOrder);
     }
 
