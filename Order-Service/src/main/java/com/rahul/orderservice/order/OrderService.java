@@ -11,4 +11,5 @@ public interface OrderService {
     List<OrderResponse> getMyOrders(String userEmail);
     OrderResponse getOrderById(UUID id);
     OrderResponse cancelOrder(String userEmail, UUID orderId);
+    OrderResponse updateOrderStatus(UUID orderId, OrderStatus newStatus);
 }

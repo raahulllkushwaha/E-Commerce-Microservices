@@ -17,4 +17,7 @@ public interface ProductServiceClient {
 
     @PutMapping("/api/products/{id}/reduce-stock")
     void reduceStock(@PathVariable("id") UUID id, @RequestParam("quantity") Integer quantity);
+
+    @PutMapping("/api/products/{id}/increase-stock")
+    void increaseStock(@PathVariable("id") UUID id, @RequestParam("quantity") Integer quantity);
 }

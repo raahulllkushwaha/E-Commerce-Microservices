@@ -37,19 +37,29 @@ public class OrderServiceImpl implements OrderService{
         }
 
         List<OrderItem> orderItems = new ArrayList<>();
+        List<CartItem> processedItems = new ArrayList<>();
 
-        for (CartItem cartItem : cart.getItems()) {
-            productServiceClient.reduceStock(cartItem.getProductId(), cartItem.getQuantity());
+        try {
+            for (CartItem cartItem : cart.getItems()) {
+                productServiceClient.reduceStock(cartItem.getProductId(), cartItem.getQuantity());
+                processedItems.add(cartItem);
 
-            OrderItem orderItem = OrderItem.builder()
-                    .productId(cartItem.getProductId())
-                    .productName(cartItem.getProductName())
-                    .price(cartItem.getPrice())
-                    .quantity(cartItem.getQuantity())
-                    .build();
+                OrderItem orderItem = OrderItem.builder()
+                        .productId(cartItem.getProductId())
+                        .productName(cartItem.getProductName())
+                        .price(cartItem.getPrice())
+                        .quantity(cartItem.getQuantity())
+                        .build();
 
-            orderItems.add(orderItem);
+                orderItems.add(orderItem);
+            }
+        } catch (Exception e) {
+            for (CartItem processed : processedItems) {
+                productServiceClient.increaseStock(processed.getProductId(), processed.getQuantity());
+            }
+            throw new RuntimeException("Order could not be placed, stock has been rolled back");
         }
+
         BigDecimal totalAmount = orderItems.stream()
                 .map(item -> item.getPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -105,6 +115,28 @@ public class OrderServiceImpl implements OrderService{
         Order updateOrder = orderRepository.save(order);
 
         return mapToOrderResponse(updateOrder);
+    }
+
+    @Override
+    public OrderResponse updateOrderStatus(UUID orderId, OrderStatus newStatus) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        OrderStatus current = order.getStatus();
+
+        boolean validTransition =
+                (current == OrderStatus.PLACED && newStatus == OrderStatus.CONFIRMED) ||
+                        (current == OrderStatus.CONFIRMED && newStatus == OrderStatus.SHIPPED) ||
+                        (current == OrderStatus.SHIPPED && newStatus == OrderStatus.DELIVERED);
+
+        if (!validTransition) {
+            throw new InvalidOrderStateException("Cannot move from " + current + " to " + newStatus);
+        }
+
+        order.setStatus(newStatus);
+        Order updated = orderRepository.save(order);
+
+        return mapToOrderResponse(updated);
     }
 
     private OrderResponse mapToOrderResponse(Order order) {

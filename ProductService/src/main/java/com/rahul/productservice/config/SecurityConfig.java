@@ -28,6 +28,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/products/**").authenticated()
                         .requestMatchers(HttpMethod.POST, "/api/products/**").hasAnyRole("ADMIN", "SELLER")
                         .requestMatchers(HttpMethod.PUT, "/api/products/*/reduce-stock").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/products/*/increase-stock").authenticated()
                         .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAnyRole("ADMIN", "SELLER")
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAnyRole("ADMIN", "SELLER")
                         .anyRequest().authenticated()

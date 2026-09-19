@@ -77,4 +77,19 @@ public class OrderController {
         return ResponseEntity.ok(response);
 
     }
+
+    @PutMapping("/{id}/status")
+    public ResponseEntity<ApiResponse<OrderResponse>> updateStatus(
+            @PathVariable UUID id, @RequestParam OrderStatus status) {
+
+        OrderResponse response = orderService.updateOrderStatus(id, status);
+
+        ApiResponse<OrderResponse> apiResponse = ApiResponse.<OrderResponse>builder()
+                .success(true)
+                .message("Order status updated")
+                .data(response)
+                .build();
+
+        return ResponseEntity.ok(apiResponse);
+    }
 }

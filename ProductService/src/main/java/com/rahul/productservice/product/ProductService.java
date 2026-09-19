@@ -14,4 +14,5 @@ public interface ProductService {
     ProductResponse updateProduct(UUID id, String sellerEmail, String role, ProductRequest request);
     void deleteProduct(UUID id, String sellerEmail, String role);
     void reduceStock(UUID id, Integer quantity);
+    void increaseStock(UUID id, Integer quantity);
 }

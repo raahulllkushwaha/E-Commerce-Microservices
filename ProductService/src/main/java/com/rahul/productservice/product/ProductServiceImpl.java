@@ -173,6 +173,15 @@ public class ProductServiceImpl implements ProductService {
         productRepository.save(product);
     }
 
+    @Override
+    public void increaseStock(UUID id, Integer quantity) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        product.setStockQuantity(product.getStockQuantity() + quantity);
+        productRepository.save(product);
+    }
+
     private ProductResponse mapToResponse(Product product) {
         return ProductResponse.builder()
                 .id(product.getId())

@@ -48,6 +48,9 @@ public class Product {
     @Builder.Default
     private boolean isActive = true;
 
+    @Version
+    private Long version;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 

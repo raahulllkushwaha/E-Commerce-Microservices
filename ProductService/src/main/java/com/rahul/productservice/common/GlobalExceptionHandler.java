@@ -6,6 +6,7 @@ import com.rahul.productservice.common.exception.ResourceNotFoundException;
 import com.rahul.productservice.common.exception.InsufficientStockException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -72,5 +73,13 @@ public class GlobalExceptionHandler {
                         .build());
     }
 
-
+    @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<?> handleOptimisticLock(ObjectOptimisticLockingFailureException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(ApiResponse.builder()
+                        .success(false)
+                        .message("Product was updated by another request, please try again")
+                        .data(null)
+                        .build());
+    }
 }
