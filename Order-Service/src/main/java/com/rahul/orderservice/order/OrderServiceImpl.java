@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,13 @@ public class OrderServiceImpl implements OrderService{
     public OrderResponse placeOrder(String userEmail, PlaceOrderRequest request) {
         Cart cart = cartRepository.findByUserEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+
+        if (request.getIdempotencyKey() != null) {
+            Optional<Order> existing = orderRepository.findByIdempotencyKey(request.getIdempotencyKey());
+            if (existing.isPresent()) {
+                return mapToOrderResponse(existing.get());
+            }
+        }
 
         if (cart.getItems().isEmpty()) {
             throw new ResourceNotFoundException("Cart is empty");
@@ -70,6 +78,7 @@ public class OrderServiceImpl implements OrderService{
                 .totalAmount(totalAmount)
                 .status(OrderStatus.PLACED)
                 .addressId(request.getAddressId())
+                .idempotencyKey(request.getIdempotencyKey())
                 .build();
 
         orderItems.forEach(item -> item.setOrder(order));

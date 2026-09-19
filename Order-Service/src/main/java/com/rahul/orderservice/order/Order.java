@@ -44,6 +44,9 @@ public class Order {
     @Version
     private Long version;
 
+    @Column(unique = true)
+    private String idempotencyKey;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 

@@ -13,4 +13,5 @@ import java.util.UUID;
 @AllArgsConstructor
 public class PlaceOrderRequest {
     private UUID addressId;
+    private String idempotencyKey;
 }
