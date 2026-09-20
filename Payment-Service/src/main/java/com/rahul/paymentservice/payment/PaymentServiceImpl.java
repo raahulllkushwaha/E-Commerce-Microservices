@@ -4,7 +4,9 @@ import com.rahul.paymentservice.common.exception.PaymentFailedException;
 import com.rahul.paymentservice.common.exception.ResourceNotFoundException;
 import com.rahul.paymentservice.payment.dto.PaymentRequest;
 import com.rahul.paymentservice.payment.dto.PaymentResponse;
+import com.rahul.paymentservice.payment.event.PaymentEvent;
 import lombok.RequiredArgsConstructor;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,11 +17,12 @@ import java.util.UUID;
 public class PaymentServiceImpl implements PaymentService {
 
     private final PaymentRepository paymentRepository;
+    private final KafkaTemplate<String, PaymentEvent> kafkaTemplate;
 
     @Override
     public PaymentResponse processPayment(String userEmail, PaymentRequest request) {
 
-        Optional<Payment> existing = paymentRepository.findByOrderId(request.getOrderId());
+        Optional<Payment> existing = paymentRepository.findFirstByOrderIdOrderByCreatedAtDesc(request.getOrderId());
         if (existing.isPresent() && existing.get().getStatus() == PaymentStatus.SUCCESS) {
             return mapToResponse(existing.get());
         }
@@ -37,6 +40,12 @@ public class PaymentServiceImpl implements PaymentService {
 
         Payment saved = paymentRepository.save(payment);
 
+        kafkaTemplate.send("payment-status-topic",
+                PaymentEvent.builder()
+                        .orderId(request.getOrderId())
+                        .status(payment.getStatus().name())
+                        .build());
+
         if (!isSuccess) {
             throw new PaymentFailedException("Payment failed, please try again");
         }
@@ -46,7 +55,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentResponse getPaymentByOrderId(UUID orderId){
-        Payment payment = paymentRepository.findByOrderId(orderId)
+        Payment payment = paymentRepository.findFirstByOrderIdOrderByCreatedAtDesc(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Payment not found"));
 
         return mapToResponse(payment);
