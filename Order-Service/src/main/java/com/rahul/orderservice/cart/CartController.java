@@ -33,7 +33,7 @@ public class CartController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/{userEmail}")
+    @GetMapping()
     public ResponseEntity<ApiResponse<CartResponse>> getCart() {
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
         CartResponse cartData = cartService.getCart(userEmail);
@@ -47,7 +47,7 @@ public class CartController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{userEmail}/items/{itemId}")
+    @DeleteMapping("/items/{itemId}")
     public ResponseEntity<ApiResponse<CartResponse>> removeCart(@PathVariable UUID itemId) {
 
         String userEmail = SecurityContextHolder.getContext().getAuthentication().getName();
@@ -63,7 +63,7 @@ public class CartController {
         return ResponseEntity.ok(response);
     }
 
-    @PutMapping("/{userEmail}/items/{itemId}")
+    @PutMapping("/items/{itemId}")
     public ResponseEntity<ApiResponse<CartResponse>> updateItemQuantity(
             @PathVariable UUID itemId,
             @RequestParam Integer quantity) {
