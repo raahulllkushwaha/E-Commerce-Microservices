@@ -18,7 +18,7 @@ public class KafkaConsumerConfig {
 
     private Map<String, Object> baseProps() {
         Map<String, Object> props = new HashMap<>();
-        props.put("bootstrap.servers", "localhost:9092");
+        props.put("bootstrap.servers", "kafka:9092");
         props.put("group.id", "notification-group");
         props.put("auto.offset.reset", "earliest");
         return props;

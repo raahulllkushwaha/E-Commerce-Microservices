@@ -17,7 +17,7 @@ public class GatewayConfig {
     public RouterFunction<ServerResponse> userRoute() {
         return route("user-service")
                 .route(path("/api/users/**"), http())
-                .before(uri("http://localhost:8081"))
+                .before(uri("http://user-service:8081"))
                 .build();
     }
 
@@ -25,7 +25,7 @@ public class GatewayConfig {
     public RouterFunction<ServerResponse> addressRoute() {
         return route("address-service")
                 .route(path("/api/addresses/**"), http())
-                .before(uri("http://localhost:8081"))
+                .before(uri("http://user-service:8081"))
                 .build();
     }
 
@@ -33,7 +33,7 @@ public class GatewayConfig {
     public RouterFunction<ServerResponse> productRoute() {
         return route("product-service")
                 .route(path("/api/products/**"), http())
-                .before(uri("http://localhost:8082"))
+                .before(uri("http://product-service:8082"))
                 .build();
     }
 
@@ -41,7 +41,7 @@ public class GatewayConfig {
     public RouterFunction<ServerResponse> categoryRoute() {
         return route("category-service")
                 .route(path("/api/categories/**"), http())
-                .before(uri("http://localhost:8082"))
+                .before(uri("http://product-service:8082"))
                 .build();
     }
 
@@ -49,7 +49,7 @@ public class GatewayConfig {
     public RouterFunction<ServerResponse> cartRoute() {
         return route("cart-service")
                 .route(path("/api/carts", "/api/carts/**"), http())
-                .before(uri("http://localhost:8083"))
+                .before(uri("http://order-service:8083"))
                 .build();
     }
 
@@ -57,7 +57,7 @@ public class GatewayConfig {
     public RouterFunction<ServerResponse> orderRoute() {
         return route("order-service")
                 .route(path("/api/orders/**"), http())
-                .before(uri("http://localhost:8083"))
+                .before(uri("http://order-service:8083"))
                 .build();
     }
 
@@ -65,7 +65,7 @@ public class GatewayConfig {
     public RouterFunction<ServerResponse> paymentRoute() {
         return route("payment-service")
                 .route(path("/api/payments/**"), http())
-                .before(uri("http://localhost:8084"))
+                .before(uri("http://payment-service:8084"))
                 .build();
     }
 }
