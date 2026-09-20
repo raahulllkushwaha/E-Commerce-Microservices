@@ -1,6 +1,6 @@
 package com.rahul.paymentservice.auth;
 
-import com.rahul.orderservice.auth.JwtUtil;
+import com.rahul.paymentservice.auth.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -7,6 +7,7 @@ import com.rahul.paymentservice.payment.dto.PaymentResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -17,6 +18,12 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentResponse processPayment(String userEmail, PaymentRequest request) {
+
+        Optional<Payment> existing = paymentRepository.findByOrderId(request.getOrderId());
+        if (existing.isPresent() && existing.get().getStatus() == PaymentStatus.SUCCESS) {
+            return mapToResponse(existing.get());
+        }
+
         boolean isSuccess = Math.random() < 0.9; // 90% success simulate
 
         Payment payment = Payment.builder()
