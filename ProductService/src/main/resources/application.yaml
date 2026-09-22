@@ -5,6 +5,9 @@ spring:
   application:
     name: product-service
 
+  kafka:
+    bootstrap-servers: kafka:9092
+
   security:
     user:
       name: user

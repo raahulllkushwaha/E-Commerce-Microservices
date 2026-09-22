@@ -10,6 +10,7 @@ import com.rahul.orderservice.common.exception.ResourceNotFoundException;
 import com.rahul.orderservice.order.dto.OrderItemResponse;
 import com.rahul.orderservice.order.dto.OrderResponse;
 import com.rahul.orderservice.order.dto.PlaceOrderRequest;
+import com.rahul.orderservice.order.event.OrderCancelledEvent;
 import com.rahul.orderservice.order.event.OrderPlacedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -30,6 +31,7 @@ public class OrderServiceImpl implements OrderService{
     private final CartRepository cartRepository;
     private final ProductServiceClient productServiceClient;
     private final KafkaTemplate<String, OrderPlacedEvent> kafkaTemplate;
+    private final KafkaTemplate<String, OrderCancelledEvent> kafkaTemplate2;
 
     @Override
     public OrderResponse placeOrder(String userEmail, PlaceOrderRequest request) {
@@ -131,6 +133,19 @@ public class OrderServiceImpl implements OrderService{
         }
         order.setStatus(OrderStatus.CANCELLED);
         Order updateOrder = orderRepository.save(order);
+
+        List<OrderCancelledEvent.CancelledItem> items = order.getItems().stream()
+                .map(i -> OrderCancelledEvent.CancelledItem.builder()
+                        .productId(i.getProductId())
+                        .quantity(i.getQuantity())
+                        .build())
+                .collect(Collectors.toList());
+
+        kafkaTemplate2.send("order-cancelled-topic",
+                OrderCancelledEvent.builder()
+                        .orderId(order.getId())
+                        .items(items)
+                        .build());
 
         return mapToOrderResponse(updateOrder);
     }
