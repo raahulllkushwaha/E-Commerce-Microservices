@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.support.serializer.JsonDeserializer;
+import org.springframework.kafka.support.serializer.JacksonJsonDeserializer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,15 +25,27 @@ public class KafkaConsumerConfig {
 
     @Bean
     public ConsumerFactory<String, OrderCancelledEvent> orderCancelledConsumerFactory() {
-        JsonDeserializer<OrderCancelledEvent> deserializer = new JsonDeserializer<>(OrderCancelledEvent.class);
+
+        JacksonJsonDeserializer<OrderCancelledEvent> deserializer =
+                new JacksonJsonDeserializer<>(OrderCancelledEvent.class);
+
         deserializer.setUseTypeHeaders(false);
-        return new DefaultKafkaConsumerFactory<>(baseProps(), new StringDeserializer(), deserializer);
+
+        return new DefaultKafkaConsumerFactory<>(
+                baseProps(),
+                new StringDeserializer(),
+                deserializer
+        );
     }
 
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, OrderCancelledEvent> orderCancelledFactory() {
-        var factory = new ConcurrentKafkaListenerContainerFactory<String, OrderCancelledEvent>();
+
+        var factory =
+                new ConcurrentKafkaListenerContainerFactory<String, OrderCancelledEvent>();
+
         factory.setConsumerFactory(orderCancelledConsumerFactory());
+
         return factory;
     }
 }

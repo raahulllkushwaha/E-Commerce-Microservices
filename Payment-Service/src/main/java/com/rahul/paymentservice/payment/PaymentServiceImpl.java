@@ -23,11 +23,12 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponse processPayment(String userEmail, PaymentRequest request) {
 
         Optional<Payment> existing = paymentRepository.findFirstByOrderIdOrderByCreatedAtDesc(request.getOrderId());
+
         if (existing.isPresent() && existing.get().getStatus() == PaymentStatus.SUCCESS) {
             return mapToResponse(existing.get());
         }
 
-        boolean isSuccess = Math.random() < 0.9; // 90% success simulate
+        boolean isSuccess = simulatePaymentSuccess();// 90% success simulate
 
         Payment payment = Payment.builder()
                 .orderId(request.getOrderId())
@@ -51,6 +52,9 @@ public class PaymentServiceImpl implements PaymentService {
         }
 
         return mapToResponse(saved);
+    }
+    protected boolean simulatePaymentSuccess() {
+        return Math.random() < 0.9;
     }
 
     @Override
